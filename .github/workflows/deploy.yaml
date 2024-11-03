@@ -1,0 +1,40 @@
+name: Deploy MultiDocker
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker build -t siddharthrajkumar/react-test -f ./client/Dockerfile.dev ./client
+      - run: docker run -e CI=true siddharthrajkumar/react-test npm test
+
+      - run: docker build -t siddharthrajkumar/multi-client ./client
+      - run: docker build -t siddharthrajkumar/multi-nginx ./nginx
+      - run: docker build -t siddharthrajkumar/multi-server ./server
+      - run: docker build -t siddharthrajkumar/multi-worker ./worker
+
+      - run: docker push siddharthrajkumar/multi-client
+      - run: docker push siddharthrajkumar/multi-nginx
+      - run: docker push siddharthrajkumar/multi-server
+      - run: docker push siddharthrajkumar/multi-worker
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: multi-docker
+          environment_name: Multi-docker-env
+          existing_bucket_name: elasticbeanstalk-ap-southeast-1-839117473964
+          region: ap-southeast-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
+          use_existing_version_if_available: true
