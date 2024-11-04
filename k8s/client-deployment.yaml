@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: client
-          image: siddharthrajkumar/multi-client-k8s-arm64
+          image: siddharthrajkumar/multi-client-k8s-gh
           ports:
             - containerPort: 3000

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: siddharthrajkumar/multi-worker-k8s-arm64
+          image: siddharthrajkumar/multi-worker-k8s-gh
           env:
             - name: REDIS_HOST
               value: redis-cluster-ip-service
