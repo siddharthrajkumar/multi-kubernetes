@@ -13,7 +13,7 @@ spec:
         component: worker
     spec:
       containers:
-        - name: server
+        - name: worker
           image: siddharthrajkumar/multi-worker-k8s-gh
           env:
             - name: REDIS_HOST
